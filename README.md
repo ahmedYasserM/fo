@@ -1,4 +1,4 @@
-t# fo
+# fo
 
 **fo** is a powerful command-line interface tool for competitive programming. It fetches sample cases from Codeforces, compiles C++ code, runs tests, and manages boilerplate for you.
 
