@@ -26,8 +26,8 @@ compiler:
   command: g++
   flags: "-Wall -Wextra -O2 -std=c++23"
 
-sourceName: main.cpp
-executableName: main
+source_name: main.cpp
+executable_name: main
 ```
 
 
@@ -180,7 +180,7 @@ fo setup https://codeforces.com/contest/799/problem/A
 
 ## Features
 
-- Auto-detects if the source file (default: `main.cpp`) has changed and rebuilds automatically.
+- Auto-detects if the source file (default: `main.cpp` has changed and rebuilds automatically.
 - Robust test parser for flexible `testcases.txt` format.
 - Clipboard integration for code sharing.
 - User-friendly colored output and error messages.
