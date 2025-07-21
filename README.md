@@ -36,7 +36,7 @@ executable_name: main
 If no template file is found, `fo` will use the following built-in template:
 
 ```cpp
-#include 
+#include <bits/stdc++.h>
 using namespace std;
 
 typedef int i32;
