@@ -81,6 +81,15 @@ func ReadFileToString(filepath string) (string, error) {
 	return string(content), nil
 }
 
+// ReadFileToString reads a file's content into bytes.
+func ReadFileToBytes(filepath string) ([]byte, error) {
+	content, err := os.ReadFile(filepath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file %s: %w", filepath, err)
+	}
+	return content, nil
+}
+
 // WriteStringToFile writes a string to a file.
 func WriteStringToFile(filepath, content string) error {
 	return os.WriteFile(filepath, []byte(content), 0o644)
@@ -91,36 +100,6 @@ func PathExists(path string) bool {
 	_, err := os.Stat(path)
 	return !os.IsNotExist(err)
 }
-
-// CppTemplate is the embedded C++ template
-const CppTemplate = `#include <bits/stdc++.h>
-using namespace std;
-
-typedef int i32;
-typedef long long i64;
-typedef unsigned int u32;
-typedef unsigned long long u64;
-typedef float f32;
-typedef double f64;
-typedef long double f80;
-typedef vector<int> vi;
-typedef vector<vector<int>> vii;
-typedef vector<long long> vl;
-typedef vector<vector<long long>> vll;
-typedef pair<int, int> pii;
-typedef pair<long long, long long> pll;
-typedef pair<string, int> psi;
-typedef set<int> si;
-typedef map<int, int> mii;
-typedef unordered_map<int, int> umii;
-
-int main(void) {
-  ios::sync_with_stdio(0);
-  cin.tie(0);
-
-  return 0;
-}
-`
 
 // TypedefRegex is used for identifying typedef lines for clip-clean.
 // Note: This regex is specific to the example C++ template's typedefs.

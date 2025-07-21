@@ -82,23 +82,20 @@ func parseTestcases(filename string) ([]Testcase, error) {
 	return tests, nil
 }
 
-// ensureBuilt recompiles main.cpp if missing or outdated
+// ensureBuilt recompiles source file if missing or outdated
 func ensureBuilt(quiet bool) error {
-	mainCpp := "main.cpp"
-	mainExe := "main"
-
-	if !utils.PathExists(mainCpp) {
-		return fmt.Errorf("%smain.cpp not found.%s", colors.RED, colors.RESET)
+	if !utils.PathExists(utils.CmdConfig.SourceName) {
+		return fmt.Errorf("%s%s not found.%s", colors.RED, utils.CmdConfig.SourceName, colors.RESET)
 	}
 
 	needsBuild := false
 
-	cppInfo, err := os.Stat(mainCpp)
+	cppInfo, err := os.Stat(utils.CmdConfig.SourceName)
 	if err != nil {
 		return err
 	}
 
-	exeInfo, err := os.Stat(mainExe)
+	exeInfo, err := os.Stat(utils.CmdConfig.ExecutableName)
 	if os.IsNotExist(err) {
 		needsBuild = true
 	} else if err != nil {
@@ -109,10 +106,10 @@ func ensureBuilt(quiet bool) error {
 
 	if needsBuild {
 		if !quiet {
-			fmt.Printf("%smain.cpp changed or executable missing. Rebuilding...%s\n", colors.YELLOW, colors.RESET)
+			fmt.Printf("%s%s changed or executable missing. Rebuilding...%s\n", utils.CmdConfig.SourceName, colors.YELLOW, colors.RESET)
 		}
 		if err := utils.BuildExecutable(testQuiet); err != nil {
-			return fmt.Errorf("%sBuild failed: %w%s", colors.RED, err, colors.RESET)
+			return fmt.Errorf("%s❌ %w%s", colors.RED, err, colors.RESET)
 		}
 		if !quiet {
 			fmt.Printf("%sBuild succeeded.%s\n", colors.GREEN, colors.RESET)
@@ -130,6 +127,12 @@ var testCmd = &cobra.Command{
 	Use:   "test",
 	Short: "Run tests against sample inputs and outputs from testcases.txt",
 	RunE: func(cmd *cobra.Command, args []string) error {
+
+		// Load Config
+		if err := utils.LoadConfigOnce(testQuiet); err != nil {
+			return err
+		}
+
 		// Step 1. Ensure executable is up to date
 		if err := ensureBuilt(testQuiet); err != nil {
 			return err
@@ -149,7 +152,7 @@ var testCmd = &cobra.Command{
 
 		passed := 0
 		for i, test := range tests {
-			actual, err := executeWithInput("./main", test.Input)
+			actual, err := executeWithInput("./"+utils.CmdConfig.ExecutableName, test.Input)
 			if err != nil {
 				fmt.Printf("%sTest #%d execution error: %v%s\n", colors.RED, i+1, err, colors.RESET)
 				continue

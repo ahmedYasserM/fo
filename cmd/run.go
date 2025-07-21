@@ -16,24 +16,25 @@ var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Builds (if needed) and runs the compiled program",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		mainCppPath := "main.cpp"
-		mainExecPath := "main"
+		if err := utils.LoadConfigOnce(runQuiet); err != nil {
+			return err
+		}
 
-		if !utils.PathExists(mainCppPath) {
-			return fmt.Errorf("%sError: %s%s not found. Cannot compile or run.%s", colors.RED, colors.BOLD, mainCppPath, colors.RESET)
+		if !utils.PathExists(utils.CmdConfig.SourceName) {
+			return fmt.Errorf("%sError: %s%s not found. Cannot compile or run.%s", colors.RED, colors.BOLD, utils.CmdConfig.SourceName, colors.RESET)
 		}
 
 		needsBuild := false
-		mainCppInfo, err := os.Stat(mainCppPath)
+		mainCppInfo, err := os.Stat(utils.CmdConfig.SourceName)
 		if err != nil {
-			return fmt.Errorf("could not get info for %s: %w", mainCppPath, err)
+			return fmt.Errorf("could not get info for %s: %w", utils.CmdConfig.SourceName, err)
 		}
 
-		mainExecInfo, err := os.Stat(mainExecPath)
+		mainExecInfo, err := os.Stat(utils.CmdConfig.ExecutableName)
 		if os.IsNotExist(err) {
 			needsBuild = true
 		} else if err != nil {
-			return fmt.Errorf("could not get info for %s: %w", mainExecPath, err)
+			return fmt.Errorf("could not get info for %s: %w", utils.CmdConfig.ExecutableName, err)
 		} else {
 			if mainCppInfo.ModTime().After(mainExecInfo.ModTime()) {
 				needsBuild = true
@@ -42,7 +43,7 @@ var runCmd = &cobra.Command{
 
 		if needsBuild {
 			if !runQuiet {
-				fmt.Printf("%sExecutable '%s' is missing or outdated. Building...%s\n", colors.YELLOW, mainExecPath, colors.RESET)
+				fmt.Printf("%sExecutable '%s' is missing or outdated. Building...%s\n", colors.YELLOW, utils.CmdConfig.ExecutableName, colors.RESET)
 			}
 			if err := utils.BuildExecutable(runQuiet); err != nil {
 				return fmt.Errorf("%sBuild failed, cannot run:%s %w", colors.RED, colors.RESET, err)
@@ -50,12 +51,12 @@ var runCmd = &cobra.Command{
 			fmt.Printf("%sBuild successful!%s\n", colors.GREEN, colors.RESET)
 		} else {
 			if !runQuiet {
-				fmt.Printf("%s'%s' is up to date, skipping build.%s\n", colors.CYAN, mainExecPath, colors.RESET)
+				fmt.Printf("%s'%s' is up to date, skipping build.%s\n", colors.CYAN, utils.CmdConfig.ExecutableName, colors.RESET)
 			}
 		}
 
-		fmt.Printf("%sRunning '%s'...%s\n", colors.CYAN, mainExecPath, colors.RESET)
-		err = utils.ExecuteCmd(fmt.Sprintf("./%s", mainExecPath))
+		fmt.Printf("%sRunning '%s'...%s\n", colors.CYAN, utils.CmdConfig.ExecutableName, colors.RESET)
+		err = utils.ExecuteCmd(fmt.Sprintf("./%s", utils.CmdConfig.ExecutableName))
 		if err != nil {
 			return fmt.Errorf("%sProgram exited with error:%s %w", colors.RED, colors.RESET, err)
 		}

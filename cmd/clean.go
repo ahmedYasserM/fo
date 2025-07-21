@@ -13,18 +13,23 @@ import (
 var cleanCmd = &cobra.Command{
 	Use:   "clean",
 	Short: "Removes generated files like 'main' executable and 'testcases.txt'",
-	Long:  `Removes the 'main' executable and the 'testcases.txt' file if they exist.`,
+	Long:  `Removes the executable file and the 'testcases.txt' if they exist.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// Remove main executable
-		if utils.PathExists("main") {
-			err := os.Remove("main")
+		if err := utils.LoadConfigOnce(true); err != nil {
+			fmt.Fprintf(os.Stderr, "%s❌  %v%s\n", colors.RED, err, colors.RESET)
+			os.Exit(1)
+		}
+
+		// Remove executable file
+		if utils.PathExists(utils.CmdConfig.ExecutableName) {
+			err := os.Remove(utils.CmdConfig.ExecutableName)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "%s❌ Error removing 'main' executable: %v%s\n", colors.RED, err, colors.RESET)
+				fmt.Fprintf(os.Stderr, "%s❌ Error removing '%s' executable: %v%s\n", colors.RED, utils.CmdConfig.ExecutableName, err, colors.RESET)
 				os.Exit(1)
 			}
-			fmt.Printf("%s✅ Removed 'main' executable.%s\n", colors.GREEN, colors.RESET)
+			fmt.Printf("%s✅ Removed '%s' executable.%s\n", colors.GREEN, utils.CmdConfig.ExecutableName, colors.RESET)
 		} else {
-			fmt.Printf("%s'main' executable%s not found, nothing to clean.%s\n", colors.YELLOW, colors.RESET, colors.RESET)
+			fmt.Printf("%s'%s' executable%s not found, nothing to clean.%s\n", colors.YELLOW, utils.CmdConfig.ExecutableName, colors.RESET, colors.RESET)
 		}
 
 		// Remove testcases.txt

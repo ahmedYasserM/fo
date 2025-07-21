@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/ahmedYasserM/fo/internal/colors"
 )
@@ -9,19 +10,19 @@ import (
 // buildExecutable encapsulates the C++ build logic.
 // It returns an error if the build fails.
 func BuildExecutable(quiet bool) error {
-	mainCppPath := "main.cpp"
-	mainExecPath := "main"
+	args := strings.Fields(CmdConfig.Compiler.Flags)
+	args = append(args, CmdConfig.SourceName, "-o", CmdConfig.ExecutableName)
 
-	if !PathExists(mainCppPath) {
-		return fmt.Errorf("%s not found. Cannot compile.", mainCppPath)
+	if !PathExists(CmdConfig.SourceName) {
+		return fmt.Errorf("%s not found. Cannot compile.", CmdConfig.SourceName)
 	}
 
 	if !quiet {
-		fmt.Printf("Compiling %s%s%s...\n", colors.CYAN, mainCppPath, colors.RESET)
+		fmt.Printf("Compiling %s%s%s...\n", colors.CYAN, CmdConfig.SourceName, colors.RESET)
 	}
-	err := ExecuteCmd("g++", "-Wall", "-Wextra", "-O2", "-std=c++23", "-o", mainExecPath, mainCppPath)
+	err := ExecuteCmd(CmdConfig.Compiler.Command, args...)
 	if err != nil {
-		return fmt.Errorf("g++ command failed: %w", err)
+		return fmt.Errorf("%s command failed: %w", CmdConfig.Compiler.Command, err)
 	}
 	return nil
 }
