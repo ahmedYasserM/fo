@@ -86,14 +86,14 @@ fo [command]
 
 | Command | Description |
 | :-- | :-- |
-| `build` | Build your source (default `main.cpp`) using config settings  |
-| `clean` | Removes generated files like `main` executable and `testcases.txt` |
-| `copy` | Copies your source code (default: `main.cpp`) content to clipboard |
-| `copy-clean` | Copies source code (default: `main.cpp`) content to clipboard after removing unused typedefs |
-| `fetch` | Fetches sample test cases from a Codeforces problem URL |
-| `run` | Builds (if needed) and runs the compiled program |
 | `setup` | Sets up a new problem: fetches samples and creates the source file (default: `main.cpp`) if not exists |
 | `test` | Run tests against sample inputs and outputs from `testcases.txt` |
+| `copy-clean` | Copies source code (default: `main.cpp`) content to clipboard after removing unused typedefs |
+| `copy` | Copies your source code (default: `main.cpp`) content to clipboard |
+| `fetch` | Fetches sample test cases from a Codeforces problem URL |
+| `build` | Build your source (default `main.cpp`) using config settings  |
+| `run` | Builds (if needed) and runs the compiled program |
+| `clean` | Removes generated files like `main` executable and `testcases.txt` |
 | `completion` | Generate the autocompletion script for the specified shell |
 | `help` | Help about any command |
 
@@ -103,6 +103,42 @@ fo [command]
 
 
 ## Command-line Examples
+
+### Set up a new problem
+
+```sh
+fo setup https://codeforces.com/contest/799/problem/A
+```
+
+### Test your solution against `testcases.txt`
+
+```sh
+fo test
+```
+
+**Quiet (suppress rebuild/test output):**
+
+```sh
+fo test --quiet
+```
+
+### Copy a cleaned solution (typeless) to clipboard
+
+```sh
+fo copy-clean
+```
+
+### Copy your solution to clipboard
+
+```sh
+fo copy
+```
+
+### Fetch sample test cases
+
+```sh
+fo fetch https://codeforces.com/contest/799/problem/A
+```
 
 ### Build the C++ solution
 
@@ -115,7 +151,6 @@ fo build
 ```sh
 fo build --quiet
 ```
-
 
 ### Run the solution (auto-rebuilds if needed)
 
@@ -130,53 +165,11 @@ fo run --quiet
 ```
 
 
-### Fetch sample test cases
-
-```sh
-fo fetch https://codeforces.com/contest/799/problem/A
-```
-
-
-### Test your solution against `testcases.txt`
-
-```sh
-fo test
-```
-
-**Quiet (suppress rebuild/test output):**
-
-```sh
-fo test --quiet
-```
-
-
-### Copy your solution to clipboard
-
-```sh
-fo copy
-```
-
-
-### Copy a cleaned solution (typeless) to clipboard
-
-```sh
-fo copy-clean
-```
-
-
 ### Clean up generated files
 
 ```sh
 fo clean
 ```
-
-
-### Set up a new problem
-
-```sh
-fo setup https://codeforces.com/contest/799/problem/A
-```
-
 
 ## Features
 
