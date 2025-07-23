@@ -46,16 +46,16 @@ typedef unsigned long long u64;
 typedef float f32;
 typedef double f64;
 typedef long double f80;
-typedef vector vi;
-typedef vector> vii;
-typedef vector vl;
-typedef vector> vll;
-typedef pair pii;
-typedef pair pll;
-typedef pair psi;
-typedef set si;
-typedef map mii;
-typedef unordered_map umii;
+typedef vector<int> vi;
+typedef vector<vector<int>> vii;
+typedef vector<long long> vl;
+typedef vector<vector<long long>> vll;
+typedef pair<int, int> pii;
+typedef pair<long long, long long> pll;
+typedef pair<string, int> psi;
+typedef set<int> si;
+typedef map<int, int> mii;
+typedef unordered_map<int, int> umii;
 
 int main(void) {
   ios::sync_with_stdio(0);
