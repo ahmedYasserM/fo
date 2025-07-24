@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	cc "github.com/ivanpirog/coloredcobra"
 	"github.com/spf13/cobra"
 )
 
@@ -22,6 +23,18 @@ Codeforces, compiling C++ code, running tests, and managing boilerplate.`,
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+	// Customize cobra output
+	cc.Init(&cc.Config{
+		RootCmd:         rootCmd,
+		Headings:        cc.HiYellow + cc.Bold,
+		Commands:        cc.HiGreen + cc.Bold,
+		Example:         cc.Italic,
+		ExecName:        cc.HiGreen + cc.Bold,
+		Flags:           cc.HiBlue + cc.Bold,
+		NoExtraNewlines: true,
+		NoBottomNewline: true,
+	})
+
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
