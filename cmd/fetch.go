@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"net/http"
 	"net/http/cookiejar"
@@ -169,14 +170,22 @@ func fetchSamples(rawurl string) error {
 	for i := range inputs {
 		inputText := extractPreText(getPreChild(inputs[i]))
 		outputText := extractPreText(getPreChild(outputs[i]))
-		_, err := fmt.Fprintf(f, "--- Sample #%d Input ---\n%s\n\n", i+1, inputText)
-		if err != nil {
-			return fmt.Errorf("failed to write input sample: %w", err)
+
+		// Split lines and trim blanks before saving
+		inputLines := splitAndTrimLines(inputText)
+		outputLines := splitAndTrimLines(outputText)
+
+		fmt.Fprintf(f, "--- Sample #%d Input ---\n", i+1)
+		for _, line := range inputLines {
+			fmt.Fprintln(f, line)
 		}
-		_, err = fmt.Fprintf(f, "--- Sample #%d Output ---\n%s\n\n", i+1, outputText)
-		if err != nil {
-			return fmt.Errorf("failed to write output sample: %w", err)
+		fmt.Fprintln(f)
+
+		fmt.Fprintf(f, "--- Sample #%d Output ---\n", i+1)
+		for _, line := range outputLines {
+			fmt.Fprintln(f, line)
 		}
+		fmt.Fprintln(f)
 	}
 
 	fmt.Printf("%s✅ Saved %d sample(s) to testcases.txt%s\n", colors.GREEN, len(inputs), colors.RESET)
@@ -234,10 +243,29 @@ func findAllDivsByClass(n *html.Node, className string) []*html.Node {
 	return result
 }
 
+// extractPreText extracts each line inside the <pre> which contains multiple <div> lines
+// It joins all the inner div lines with newline preserve the multiline format
 func extractPreText(n *html.Node) string {
 	if n == nil {
 		return ""
 	}
+	var lines []string
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		if c.Type == html.ElementNode && c.Data == "div" {
+			lineText := extractTextFromNode(c)
+			lines = append(lines, lineText)
+		} else if c.Type == html.TextNode {
+			text := strings.TrimSpace(c.Data)
+			if text != "" {
+				lines = append(lines, text)
+			}
+		}
+	}
+	return strings.Join(lines, "\n")
+}
+
+// Helper to recursively extract text from node (used for each line div)
+func extractTextFromNode(n *html.Node) string {
 	var b strings.Builder
 	var f func(*html.Node)
 	f = func(n *html.Node) {
@@ -264,5 +292,94 @@ func getPreChild(n *html.Node) *html.Node {
 			return c
 		}
 	}
+	return nil
+}
+
+// splitAndTrimLines splits text by line, trims whitespace, and removes blank lines.
+func splitAndTrimLines(text string) []string {
+	var result []string
+	scanner := bufio.NewScanner(strings.NewReader(text))
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if len(line) > 0 {
+			result = append(result, line)
+		}
+	}
+	return result
+}
+
+
+package cmd
+
+import (
+	"fmt"
+	"os"
+	"strings"
+
+	"github.com/gocolly/colly/v2"
+	"github.com/spf13/cobra"
+	"github.com/ahmedYasserM/fo/internal/colors"
+)
+
+var fetchCmd = &cobra.Command{
+	Use:   "fetch [URL]",
+	Short: "Fetch sample test cases from a Codeforces problem URL",
+	Long: `Fetch downloads sample input and output from a given Codeforces problem URL.
+The samples are saved to 'testcases.txt'.
+
+Example:
+  fo fetch https://codeforces.com/contest/1234/problem/A`,
+	Args: cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return fetchSamples(args[0])
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(fetchCmd)
+}
+
+func fetchSamples(rawurl string) error {
+	c := colly.NewCollector(
+		colly.UserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "+
+			"(KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"),
+	)
+
+	// Store samples here
+	inputs := []string{}
+	outputs := []string{}
+
+	c.OnHTML("div.sample-test", func(e *colly.HTMLElement) {
+		e.ForEach("div.input", func(_ int, el *colly.HTMLElement) {
+			input := strings.TrimSpace(el.ChildText("pre"))
+			inputs = append(inputs, input)
+		})
+		e.ForEach("div.output", func(_ int, el *colly.HTMLElement) {
+			output := strings.TrimSpace(el.ChildText("pre"))
+			outputs = append(outputs, output)
+		})
+	})
+
+	err := c.Visit(rawurl)
+	if err != nil {
+		return fmt.Errorf("failed to visit URL: %w", err)
+	}
+
+	if len(inputs) == 0 || len(inputs) != len(outputs) {
+		return fmt.Errorf("could not find matching sample inputs and outputs")
+	}
+
+	f, err := os.Create("testcases.txt")
+	if err != nil {
+		return fmt.Errorf("failed to create testcases.txt: %w", err)
+	}
+	defer f.Close()
+
+	for i := range inputs {
+		fmt.Fprintf(f, "--- Sample #%d Input ---\n%s\n\n", i+1, inputs[i])
+		fmt.Fprintf(f, "--- Sample #%d Output ---\n%s\n\n", i+1, outputs[i])
+	}
+
+	fmt.Printf("%s✅ Saved %d samples to testcases.txt%s\n", colors.GREEN, len(inputs), colors.RESET)
 	return nil
 }
