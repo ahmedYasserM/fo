@@ -105,7 +105,7 @@ func fetchSamples(rawurl string) error {
 
 	err := c.Visit(rawurl)
 	if err != nil {
-		return fmt.Errorf("failed to visit URL: %w", err)
+		return fmt.Errorf("failed to visit URL %w", err)
 	}
 
 	if len(inputs) == 0 || len(inputs) != len(outputs) {

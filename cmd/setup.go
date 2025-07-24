@@ -14,12 +14,12 @@ func preload() error {
 
 	// Load config file
 	if err := utils.LoadConfigOnce(false); err != nil {
-		return fmt.Errorf("%s❌ Setup failed during parsing config: %v%s\n", colors.RED, err, colors.RESET)
+		return fmt.Errorf("%s❌ %v%s\n", colors.RED, err, colors.RESET)
 	}
 
 	// Load C++ template
 	if err := utils.LoadTemplateOnce(); err != nil {
-		return fmt.Errorf("%s❌ Setup failed during parsing C++ template: %v%s\n", colors.RED, err, colors.RESET)
+		return fmt.Errorf("%s❌  %v%s\n", colors.RED, err, colors.RESET)
 	}
 
 	return nil
@@ -50,7 +50,7 @@ This helps keep your workflow flexible and consistent across projects.`,
 		fetchURL := args[0]
 		fmt.Printf("Running %sfetch %s%s...\n", colors.CYAN, fetchURL, colors.RESET)
 		if err := fetchCmd.RunE(cmd, args); err != nil {
-			fmt.Fprintf(os.Stderr, "%s❌ Setup failed during fetch: %v%s\n", colors.RED, err, colors.RESET)
+			fmt.Fprintf(os.Stderr, "%s❌ %v%s\n", colors.RED, err, colors.RESET)
 			os.Exit(1)
 		}
 

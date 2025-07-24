@@ -79,7 +79,7 @@ func parseConfig(quiet bool) error {
 	configPath := filepath.Join(configDir, "config.yaml")
 
 	if !PathExists(configPath) {
-		fmt.Fprintf(os.Stderr, "%sNo config.yaml found in %s (The default config will be used).%s\n", colors.YELLOW, configDir, colors.RESET)
+		fmt.Fprintf(os.Stderr, "%s⚠️ Config file not found. Using defaults.%s\n", colors.YELLOW, colors.RESET)
 		CmdConfig = &defaultConfig
 		return nil
 	}
@@ -104,7 +104,7 @@ func parseTemplate() error {
 	templatePath := filepath.Join(configDir, "template.cpp")
 
 	if !PathExists(templatePath) {
-		fmt.Fprintf(os.Stderr, "%sNo template.cpp found in %s (The default C++ will be used).%s\n", colors.YELLOW, configDir, colors.RESET)
+		fmt.Fprintf(os.Stderr, "%s⚠️ Template file not found. Using default template.%s\n", colors.YELLOW, colors.RESET)
 		CmdTemplate = defaultCppTemplate
 		return nil
 	}
