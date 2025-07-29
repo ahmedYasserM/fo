@@ -46,7 +46,6 @@ This helps keep your workflow flexible and consistent across projects.`,
 			os.Exit(1)
 		}
 
-		// 1. Run fetch command
 		fetchURL := args[0]
 		fmt.Printf("Running %sfetch %s%s...\n", colors.CYAN, fetchURL, colors.RESET)
 		if err := fetchCmd.RunE(cmd, args); err != nil {
@@ -54,7 +53,6 @@ This helps keep your workflow flexible and consistent across projects.`,
 			os.Exit(1)
 		}
 
-		// 4. Create source file
 		fmt.Printf("Creating template %s%s%s...\n", colors.CYAN, utils.CmdConfig.SourceName, colors.RESET)
 		err := utils.WriteStringToFile(utils.CmdConfig.SourceName, utils.CmdTemplate)
 		if err != nil {
