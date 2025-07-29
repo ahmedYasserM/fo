@@ -48,7 +48,9 @@ var runCmd = &cobra.Command{
 			if err := utils.BuildExecutable(runQuiet); err != nil {
 				return fmt.Errorf("%sBuild failed, cannot run:%s %w", colors.RED, colors.RESET, err)
 			}
-			fmt.Printf("%sBuild successful!%s\n", colors.GREEN, colors.RESET)
+			if !runQuiet {
+				fmt.Printf("%s✅ Build successful! Executable: %s%s\n", colors.GREEN, utils.CmdConfig.ExecutableName, colors.RESET)
+			}
 		} else {
 			if !runQuiet {
 				fmt.Printf("%s'%s' is up to date, skipping build.%s\n", colors.CYAN, utils.CmdConfig.ExecutableName, colors.RESET)
